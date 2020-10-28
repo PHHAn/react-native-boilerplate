@@ -1,0 +1,15 @@
+import * as React from 'react';
+import {View} from 'react-native';
+import styles from './{{properCase name}}.styles';
+import AppText from 'components/AppText';
+// import {NAMESPACE} from './{{properCase name}}.constants';
+
+function {{properCase name}}View() {
+  return (
+    <View style={styles.container}>
+      <AppText>{{properCase name}}</AppText>
+    </View>
+  );
+}
+
+export default React.memo({{properCase name}}View);
