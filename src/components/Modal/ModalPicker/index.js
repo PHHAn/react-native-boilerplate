@@ -1,14 +1,17 @@
 import React from 'react';
-import styles from './styles';
 import {View, Image} from 'react-native';
+import ModalView from 'react-native-modal';
+import styles from './styles';
 import AppText from 'components/AppText';
 import {DEVICE_HEIGHT} from 'constants/size';
 import {COLOR_BACKGROUND} from 'constants/colors';
-import ModalView from '../ModalView';
 
-function ModalPicker({isOpen, data}) {
+function ModalPicker({isOpen, data, onClose}) {
   return (
-    <ModalView isVisible={isOpen}>
+    <ModalView
+      isVisible={isOpen}
+      onBackdropPress={onClose}
+      onBackButtonPress={onClose}>
       <View style={styles.container}>
         <View
           style={{

@@ -1,5 +1,4 @@
 /* eslint-disable react-native/no-inline-styles */
-/* eslint-disable no-use-before-define */
 import React, {PureComponent} from 'react';
 import {
   ColorPropType,
@@ -12,10 +11,9 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  Picker,
 } from 'react-native';
 import _ from 'lodash';
-// import {Picker} from '@react-native-community/picker';
+import {Picker} from '@react-native-picker/picker';
 import PropTypes from 'prop-types';
 
 export default class PickerView extends PureComponent {

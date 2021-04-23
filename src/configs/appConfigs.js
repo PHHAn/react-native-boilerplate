@@ -1,4 +1,4 @@
-import {END_POINT} from 'react-native-dotenv';
+import {END_POINT} from '@env';
 
 export const ENV_KEY = {
   PRODUCTION: 'PRODUCTION',

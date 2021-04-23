@@ -40,6 +40,10 @@ export default function DummyScreen() {
   //   height: 200,
   // };
 
+  const onClose = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <View style={styles.container}>
       <AppButton
@@ -48,7 +52,7 @@ export default function DummyScreen() {
         }}
         title={'Open Modal'}
       />
-      <ModalPicker isOpen={isOpen} data={listItem} />
+      <ModalPicker isOpen={isOpen} onClose={onClose} data={listItem} />
     </View>
   );
 }
