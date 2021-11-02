@@ -1,32 +1,34 @@
-import {Platform} from 'react-native';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import ImagePicker from 'react-native-image-crop-picker';
-import {
-  checkMultiple,
-  PERMISSIONS,
-  request,
-  RESULTS,
-  check,
-} from 'react-native-permissions';
-import {TYPE_IMG_PICKER} from 'constants/appConstants';
+import { TYPE_IMG_PICKER } from 'Constants/Common';
+import { Platform } from 'react-native';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { checkMultiple, PERMISSIONS, request, RESULTS, check } from 'react-native-permissions';
 
 const optionCameraCaptured = {
   mediaType: 'photo',
-  maxWidth: 1000,
-  maxHeight: 1000,
+  // maxWidth: 1000,
+  // maxHeight: 1000,
   quality: 0.7,
   includeBase64: true,
   saveToPhotos: true,
 };
 
+const cameraPermissionDenied =
+  'Please provided Certifired permission to access to device camera to use all Certifired features such as Scan QR, take photo avatar,...';
+const cameraPermissionBlocked =
+  'Please provided Certifired permission to access to device camera to use all Certifired features such as Scan QR, take photo avatar,...';
+const cameraPermissionNotAvailbled = 'This feature is not availble on this device!';
+
+const storagePermissionDenied =
+  'Please provided Certifired permission to access to device storage to save captured image into device public storage';
+const storagePermissionBlocked =
+  'Please provided Certifired permission to access to device storage to save captured image into device public storage';
+const storagePermissionNotAvailbled = 'This feature is not availble on this device!';
+
 const checkAndroidPermissions = async () => {
   const storagePermission = PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE;
   const cameraPermission = PERMISSIONS.ANDROID.CAMERA;
   const res = await checkMultiple([storagePermission, cameraPermission]);
-  if (
-    res[storagePermission] === RESULTS.GRANTED &&
-    res[cameraPermission] === RESULTS.GRANTED
-  ) {
+  if (res[storagePermission] === RESULTS.GRANTED && res[cameraPermission] === RESULTS.GRANTED) {
     return true;
   } else {
     let isAvailable = false;
@@ -97,7 +99,7 @@ const handledCameraCaptured = async (customOptions, callback) => {
           message:
             'Please grant Certifired app permission to access device camera to continue use this feature',
         },
-        null,
+        null
       );
     }
   } else {
@@ -109,89 +111,55 @@ const handledCameraCaptured = async (customOptions, callback) => {
           message:
             'Please grant Certifired app permission to access device camera to continue use this feature',
         },
-        null,
+        null
       );
     }
   }
   const options = Object.assign(
     {},
     optionCameraCaptured,
-    customOptions ? {...customOptions} : {},
+    customOptions ? { ...customOptions } : {}
   );
-  launchCamera(options, (response) => {
-    if (response.didCancel) {
+  launchCamera(options, ({ assets, errorCode, errorMessage, didCancel }) => {
+    if (didCancel) {
       console.log('User cancelled image picker');
-    } else if (response.errorCode) {
-      callback(
-        {title: response.errorCode, message: response.errorMessage},
-        null,
-      );
+    } else if (errorCode) {
+      callback({ title: errorCode, message: errorMessage }, null);
     } else {
-      callback(null, response);
+      console.log('>>>CHECK RES<<<', assets);
+
+      callback(null, assets[0]);
     }
   });
 };
 
 const optionImageLibrary = {
   mediaType: 'photo',
-  compressImageMaxWidth: 1000,
-  compressImageMaxHeight: 1000,
-  compressImageQuality: 0.7,
+  // maxWidth: 1000,
+  // maxHeight: 1000,
+  quality: 0.7,
   includeBase64: true,
 };
 
 const handledImageLibrary = (customOptions, callback) => {
-  const options = Object.assign(
-    {},
-    optionImageLibrary,
-    customOptions ? {...customOptions} : {},
-  );
-  // launchImageLibrary(options, (response) => {
-  //   if (response.didCancel) {
-  //     console.log('User cancelled image picker')
-  //   } else if (response.errorCode) {
-  //     callback(
-  //       { title: response.errorCode, message: response.errorMessage },
-  //       null,
-  //     )
-  //   } else {
-  //     callback(null, response)
-  //   }
-  // })
-  ImagePicker.openPicker(options)
-    .then((res) => {
-      let parse;
-      if (options.multiple) {
-        parse = res.map((i) => ({
-          uri: i.path,
-          base64: i.data,
-          height: i.height,
-          width: i.width,
-          type: i.mime,
-          fileName: i.filename,
-          fileSize: i.size,
-        }));
+  const options = Object.assign({}, optionImageLibrary, customOptions ? { ...customOptions } : {});
+  launchImageLibrary(options, ({ assets, errorCode, errorMessage, didCancel }) => {
+    if (didCancel) {
+      console.log('User cancelled image picker');
+    } else if (errorCode) {
+      callback({ title: errorCode, message: errorMessage }, null);
+    } else {
+      console.log('>>>CHECK RES<<<', assets);
+      if (!options.selectionLimit || assets.length === 1) {
+        callback(null, assets[0]);
       } else {
-        parse = {
-          uri: res.path,
-          base64: res.data,
-          height: res.height,
-          width: res.width,
-          type: res.mime,
-          fileName: res.filename,
-          fileSize: res.size,
-        };
+        callback(null, assets);
       }
-      callback(null, parse);
-    })
-    .catch((err) => callback(err, null));
+    }
+  });
 };
 
-export const openImagePicker = async ({
-  type,
-  callback,
-  options = {saveToPhotos: true, multiple: false},
-}) => {
+export const openImagePicker = async ({ type, callback, options = { saveToPhotos: true } }) => {
   switch (type) {
     case TYPE_IMG_PICKER.CAMERA:
       handledCameraCaptured(options, callback);
